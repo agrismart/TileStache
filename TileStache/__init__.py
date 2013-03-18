@@ -8,7 +8,7 @@ designers and cartographers.
 
 Documentation available at http://tilestache.org/doc/
 """
-__version__ = 'N.N.N'
+__version__ = '1.45.0'
 
 import re
 
@@ -25,6 +25,7 @@ from urllib import urlopen
 from os import getcwd
 from time import time
 import logging
+import hashlib
 
 try:
     from json import load as json_load
@@ -340,6 +341,8 @@ def cgiHandler(environ, config='./tilestache.cfg', debug=False):
         expires = datetime.utcnow() + timedelta(seconds=layer.max_cache_age)
         print >> stdout, 'Expires:', expires.strftime('%a %d %b %Y %H:%M:%S GMT')
         print >> stdout, 'Cache-Control: public, max-age=%d' % layer.max_cache_age
+        print >> stdout, 'ETag:', hashlib.sha1(content).hexdigest()
+        print >> stdout, 'Last-Modified:', datetime.utcnow().strftime('%a %d %b %Y %H:%M:%S GMT')
     
     print >> stdout, 'Content-Length: %d' % len(content)
     print >> stdout, 'Content-Type: %s\n' % mimetype
@@ -430,6 +433,8 @@ class WSGITileServer:
             expires = datetime.utcnow() + timedelta(seconds=max_cache_age)
             headers.append(('Expires', expires.strftime('%a %d %b %Y %H:%M:%S GMT')))
             headers.append(('Cache-Control', 'public, max-age=%d' % max_cache_age))
+            headers.append(('ETag', hashlib.sha1(content).hexdigest()))
+            headers.append(('Last-Modified', datetime.utcnow().strftime('%a %d %b %Y %H:%M:%S GMT')))
         
         start_response(code, headers)
         return [content]
