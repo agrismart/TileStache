@@ -341,7 +341,7 @@ def cgiHandler(environ, config='./tilestache.cfg', debug=False):
         expires = datetime.utcnow() + timedelta(seconds=layer.max_cache_age)
         print >> stdout, 'Expires:', expires.strftime('%a %d %b %Y %H:%M:%S GMT')
         print >> stdout, 'Cache-Control: public, max-age=%d' % layer.max_cache_age
-        print >> stdout, 'ETag:', hashlib.sha1(content).hexdigest()
+        print >> stdout, 'ETag:', '"' + hashlib.sha1(content).hexdigest() + '"'
         print >> stdout, 'Last-Modified:', datetime.utcnow().strftime('%a %d %b %Y %H:%M:%S GMT')
     
     print >> stdout, 'Content-Length: %d' % len(content)
@@ -433,7 +433,7 @@ class WSGITileServer:
             expires = datetime.utcnow() + timedelta(seconds=max_cache_age)
             headers.append(('Expires', expires.strftime('%a %d %b %Y %H:%M:%S GMT')))
             headers.append(('Cache-Control', 'public, max-age=%d' % max_cache_age))
-            headers.append(('ETag', hashlib.sha1(content).hexdigest()))
+            headers.append(('ETag', '"' + hashlib.sha1(content).hexdigest() + '"'))
             headers.append(('Last-Modified', datetime.utcnow().strftime('%a %d %b %Y %H:%M:%S GMT')))
         
         start_response(code, headers)
